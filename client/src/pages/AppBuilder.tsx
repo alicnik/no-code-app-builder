@@ -1,5 +1,5 @@
 import { Box, Flex } from '@hope-ui/solid';
-import { App, Prisma } from '@prisma/client';
+import { App } from '@prisma/client';
 import { useRouteData } from 'solid-app-router';
 import type { Component } from 'solid-js';
 
