@@ -15,7 +15,7 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   username  String
-  email     String
+  email     String    @unique
   password  Password?
   apps      App[]
 }
@@ -34,7 +34,7 @@ model App {
   page      Page[]
   owner     User     @relation(fields: [ownerId], references: [id])
   ownerId   String
-  Route     Route[]
+  routes    Route[]
 }
 
 model Route {
