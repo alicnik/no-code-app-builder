@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  username  String
+  email     String
+  password  Password?
+  apps      App[]
+}
+
+model Password {
+  hash   String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+}
+
+model App {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  page      Page[]
+  owner     User     @relation(fields: [ownerId], references: [id])
+  ownerId   String
+  Route     Route[]
+}
+
+model Route {
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  name        String
+  path        String
+  app         App        @relation(fields: [appId], references: [id])
+  appId       String
+  page        Page?
+  routeData   RouteData? @relation(fields: [routeDataId], references: [id])
+  routeDataId String
+}
+
+model RouteData {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  data        String
+  url         String
+  bearerToken String
+  Route       Route[]
+}
+
+model Page {
+  id              String      @id @default(cuid())
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  title           String
+  App             App         @relation(fields: [appId], references: [id])
+  appId           String
+  rootComponentId String
+  components      Component[]
+  route           Route       @relation(fields: [routeId], references: [id])
+  routeId         String      @unique
+}
+
+model Component {
+  id                String      @id @default(cuid())
+  componentId       String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  Page              Page        @relation(fields: [pageId], references: [id])
+  pageId            String      @unique
+  children          Component[] @relation("children")
+  parentComponent   Component   @relation("children", fields: [parentComponentId], references: [id])
+  parentComponentId String
+}
