@@ -22,9 +22,9 @@ router.post('/apps/new', async (req, res) => {
       owner: { connect: { email } },
       routes: {
         create: {
+          slug: 'home',
           title: 'home',
           path: '/',
-          slug: 'home',
           page: {
             create: {
               rootComponentId,
@@ -64,17 +64,38 @@ router.delete('/apps/:id', async (req, res) => {
   res.status(204).send();
 });
 
+router.delete('/apps/:appId/routes/:routeId', async (req, res) => {
+  const { appId, routeId } = req.params;
+  const updatedApp = await prisma.app.update({
+    where: { id: appId },
+    data: {
+      routes: {
+        delete: { id: routeId },
+      },
+    },
+    include: {
+      routes: {
+        include: {
+          page: true,
+        },
+      },
+    },
+  });
+  res.status(202).send(updatedApp);
+});
+
 router.post('/apps/:id/routes', async (req, res) => {
   const { id } = req.params;
+  const { title, slug } = req.body;
   const rootComponentId = randomUUID();
   const updatedApp = await prisma.app.update({
     where: { id },
     data: {
       routes: {
         create: {
-          title: 'home',
-          path: '/',
-          slug: 'home',
+          slug,
+          title,
+          path: '/' + slug,
           page: {
             create: {
               rootComponentId,
@@ -89,9 +110,15 @@ router.post('/apps/:id/routes', async (req, res) => {
         },
       },
     },
+    include: {
+      routes: {
+        include: {
+          page: true,
+        },
+      },
+    },
   });
-  console.log('updated app');
-  res.status(202).send(updatedApp);
+  res.status(201).send(updatedApp);
 });
 
 router.get('/dashboard/:userId', async (req, res) => {
