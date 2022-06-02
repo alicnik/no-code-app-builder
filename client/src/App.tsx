@@ -7,15 +7,26 @@ const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const AppBuilder = lazy(() => import('./pages/AppBuilder'));
 
+import './styles/app.css';
+
 const getAppData: RouteDataFunc = ({ params }) => {
-  const [app] = createResource(
+  return createResource(
     () => params.id,
     async () => {
       const res = await axios.get('http://localhost:8000/api/apps/' + params.id);
       return res.data;
     }
   );
-  return app;
+};
+
+const getDashboardData: RouteDataFunc = ({ params }) => {
+  return createResource(
+    () => params.userId,
+    async () => {
+      const res = await axios.get('http://localhost:8000/api/dashboard/' + params.userId);
+      return res.data;
+    }
+  );
 };
 
 const App: Component = () => {
@@ -23,7 +34,7 @@ const App: Component = () => {
     <Routes>
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
-      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/dashboard/:userId" component={Dashboard} data={getDashboardData} />
       <Route path="/builder/:id" component={AppBuilder} data={getAppData} />
     </Routes>
   );

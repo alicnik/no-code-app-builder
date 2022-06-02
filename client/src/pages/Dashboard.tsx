@@ -1,19 +1,55 @@
-import { Box, Button, FormControl, FormLabel, Heading, Input, VStack } from '@hope-ui/solid';
-import { Component, createSignal } from 'solid-js';
-import { Prisma } from '@prisma/client';
-import { useNavigate } from 'solid-app-router';
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Text,
+  VStack,
+} from '@hope-ui/solid';
+import { Component, createSignal, For } from 'solid-js';
+import { App, Prisma } from '@prisma/client';
+import { Link, useNavigate, useRouteData } from 'solid-app-router';
 import axios from 'axios';
 
+type Loader = [() => App[], { refetch: () => Promise<App[]> }];
+
 const Dashboard: Component = () => {
+  const [routeData, { refetch }] = useRouteData<Loader>();
+
+  const handleDelete = async (id: string) => {
+    await axios.delete(`http://localhost:8000/api/apps/${id}`);
+    refetch();
+  };
+
   return (
     <Box p={24}>
-      <Heading as="h1">Dashboard</Heading>
-      <NewAppForm />
+      <Heading as="h1" mb={24}>
+        My Apps
+      </Heading>
+      <Flex gap={16} mb={24}>
+        <For each={routeData()}>
+          {(app) => (
+            <Box border="1px solid black" borderRadius={3} padding={4}>
+              <Link href={`/builder/${app.id}`}>
+                <Heading as="h3">{app.name}</Heading>
+              </Link>
+              <Text color="red" size="sm" cursor="pointer" onClick={() => handleDelete(app.id)}>
+                Delete
+              </Text>
+            </Box>
+          )}
+        </For>
+      </Flex>
+      <Heading as="h2">New App</Heading>
+      <NewAppForm refetch={refetch} />
     </Box>
   );
 };
 
-const NewAppForm: Component = () => {
+const NewAppForm: Component<{ refetch: () => Promise<App[]> }> = ({ refetch }) => {
   const navigate = useNavigate();
   const [name, setName] = createSignal<Prisma.AppCreateInput['name']>('');
   const handleSubmit = async (e: SubmitEvent) => {
@@ -22,7 +58,7 @@ const NewAppForm: Component = () => {
       name: name(),
       email: 'admin@email.com',
     });
-    console.log(res);
+    refetch();
     // const app = res.data;
     // navigate(`/builder/${app.id}`);
   };

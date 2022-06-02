@@ -31,7 +31,6 @@ model App {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String
-  page      Page[]
   owner     User     @relation(fields: [ownerId], references: [id])
   ownerId   String
   routes    Route[]
@@ -41,13 +40,14 @@ model Route {
   id          String     @id @default(cuid())
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  name        String
+  title       String
   path        String
-  app         App        @relation(fields: [appId], references: [id])
+  slug        String
+  app         App        @relation(fields: [appId], references: [id], onDelete: Cascade)
   appId       String
   page        Page?
   routeData   RouteData? @relation(fields: [routeDataId], references: [id])
-  routeDataId String
+  routeDataId String?
 }
 
 model RouteData {
@@ -64,23 +64,20 @@ model Page {
   id              String      @id @default(cuid())
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  title           String
-  App             App         @relation(fields: [appId], references: [id])
-  appId           String
   rootComponentId String
   components      Component[]
-  route           Route       @relation(fields: [routeId], references: [id])
+  route           Route       @relation(fields: [routeId], references: [id], onDelete: Cascade)
   routeId         String      @unique
 }
 
 model Component {
-  id                String      @id @default(cuid())
-  componentId       String
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  Page              Page        @relation(fields: [pageId], references: [id])
-  pageId            String      @unique
-  children          Component[] @relation("children")
-  parentComponent   Component   @relation("children", fields: [parentComponentId], references: [id])
-  parentComponentId String
+  id                 String      @id @default(cuid())
+  componentLibraryId String
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  page               Page        @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  pageId             String
+  children           Component[] @relation("children")
+  parentComponent    Component?  @relation("children", fields: [parentComponentId], references: [id])
+  parentComponentId  String?
 }
