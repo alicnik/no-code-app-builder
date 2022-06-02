@@ -1,24 +1,15 @@
 import {
   Box,
-  Button,
   createDisclosure,
   Flex,
   IconButton,
-  Popover,
-  PopoverAnchor,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
   Tab,
   TabList,
   TabPanel,
   Tabs,
   Tooltip,
 } from '@hope-ui/solid';
-import { App, Page, Prisma, Route } from '@prisma/client';
+import { App, Page, Route } from '@prisma/client';
 import { useRouteData } from 'solid-app-router';
 import { Component, createSignal, For, Index, Suspense } from 'solid-js';
 import ComponentRenderer from '../component-library/ComponentRenderer';
